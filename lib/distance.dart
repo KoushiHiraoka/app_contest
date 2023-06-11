@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-const apiKey = 'AIzaSyDFPDJaJTu544U7w7yw0FekD6L1TQJVVtM';
+const apiKey = 'AIzaSyAgHUyBMBbCCv_6x3GXTWGUfpMWy8irJO0';
 Future<Map<String, dynamic>> getDistanceAndDuration(
   double startLatitude,
   double startLongitude,
@@ -9,7 +9,7 @@ Future<Map<String, dynamic>> getDistanceAndDuration(
   double destinationLongitude,
 ) async {
   String url =
-      "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLatitude,$startLongitude&destinations=$destinationLatitude,$destinationLongitude&mode=walking&key=AIzaSyDFPDJaJTu544U7w7yw0FekD6L1TQJVVtM";
+      "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLatitude,$startLongitude&destinations=$destinationLatitude,$destinationLongitude&mode=walking&key=$apiKey";
   http.Response response = await http.get(Uri.parse(url));
   Map<String, dynamic> values = jsonDecode(response.body);
 
@@ -19,7 +19,7 @@ Future<Map<String, dynamic>> getDistanceAndDuration(
   String durationWalking = values["rows"][0]["elements"][0]["duration"]["text"];
 
   url =
-      "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLatitude,$startLongitude&destinations=$destinationLatitude,$destinationLongitude&mode=driving&key=AIzaSyDFPDJaJTu544U7w7yw0FekD6L1TQJVVtM";
+      "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$startLatitude,$startLongitude&destinations=$destinationLatitude,$destinationLongitude&mode=driving&key=$apiKey";
   response = await http.get(Uri.parse(url));
   values = jsonDecode(response.body);
   String distanceDriving = values["rows"][0]["elements"][0]["distance"]["text"];
