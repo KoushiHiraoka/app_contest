@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "53379008663",
+    "project_id": "humanophi",
+    "storage_bucket": "humanophi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:53379008663:android:66d5a3760782345f33c1d2",
+        "android_client_info": {
+          "package_name": "com.example.app_contest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "53379008663-1lpe4khhvrruofcrcdjfqh8chhhr3dkb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhD4KGwrHXNAOLaaBOclkZyK5lj2xaJs8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "53379008663-1lpe4khhvrruofcrcdjfqh8chhhr3dkb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "53379008663-bmk84t963j4hsthtc5e28c07gd344c06.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.appContest"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

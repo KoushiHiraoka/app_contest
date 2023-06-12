@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-const apiKey = 'AIzaSyAgHUyBMBbCCv_6x3GXTWGUfpMWy8irJO0';
+const apiKey = 'AIzaSyCZqph0a84xr03zjkiqTE_u8atElhjravU';
 Future<Map<String, dynamic>> getDistanceAndDuration(
   double startLatitude,
   double startLongitude,
@@ -13,7 +13,6 @@ Future<Map<String, dynamic>> getDistanceAndDuration(
   http.Response response = await http.get(Uri.parse(url));
   Map<String, dynamic> values = jsonDecode(response.body);
 
-  print(values); //valueの中身を確認
 
   String distanceWalking = values["rows"][0]["elements"][0]["distance"]["text"];
   String durationWalking = values["rows"][0]["elements"][0]["duration"]["text"];
