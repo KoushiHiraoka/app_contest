@@ -27,6 +27,12 @@ Future<void> getData() async {
             const Text('待ち合わせアプリ'),
             ElevatedButton(
               onPressed: () {
+                context.push('/sign_in');
+              },
+              child: const Text('ログイン/新規登録'),
+            ),
+            ElevatedButton(
+              onPressed: () {
                 context.push('/map');
               },
               child: const Text('Mapを開く'),

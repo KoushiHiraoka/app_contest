@@ -1,5 +1,6 @@
 import 'package:app_contest/home.dart';
 import 'package:app_contest/map.dart';
+import 'package:app_contest/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -33,6 +34,10 @@ final _router = GoRouter(
     GoRoute(
       path: '/monitoring',
       builder: (context, state) => const Monitoring(),
+    ),
+    GoRoute(
+      path: '/sign_in',
+      builder: (context, state) => const SignIn(),
     ),
   ],
 );

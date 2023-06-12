@@ -62,7 +62,7 @@ void initPositionStream() {
 
 @override
 void dispose() {
-  positionStream.cancel();  // ストリームの購読をキャンセルします。
+  positionStream.cancel(); 
   super.dispose();
 }
 
