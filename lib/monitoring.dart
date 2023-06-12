@@ -13,6 +13,7 @@ class Monitoring extends StatefulWidget {
   State<Monitoring> createState() => MonitoringState();
 }
 
+
 class MonitoringState extends State<Monitoring> {
   Position? currentPosition;
   String _walkingDistance = '';
@@ -20,6 +21,7 @@ class MonitoringState extends State<Monitoring> {
   String _drivingDistance = '';
   String _drivingDuration = '';
 
+ 
   @override
   void initState() {
     super.initState();
@@ -30,6 +32,7 @@ class MonitoringState extends State<Monitoring> {
         await Geolocator.requestPermission();
       }
       currentPosition = await Geolocator.getCurrentPosition();
+      _addMarkerFromFirestoreUser();
     });
   }
 
@@ -55,16 +58,23 @@ class MonitoringState extends State<Monitoring> {
     return {
       'deslat': userData['deslat'],
       'deslng': userData['deslng'],
+
     };
   }
+    
 
-  void _addMarkerFromFirestoreUser(LatLng tapPosition) async {
+  void _addMarkerFromFirestoreUser() async {
     Map<String, dynamic> userLocation = await getUserLocation('currentlocation');
     Map<String, dynamic> userDestination = await getUserDestination('destination');
 
+    print(userDestination['deslat']);
+    print(userDestination['deslng']);
+    print(userLocation['latitude']);
+    print(userLocation['longitude']);
+
     final data = await getDistanceAndDuration(
-      userLocation['latitude'],
-      userLocation['longitude'],
+      userDestination['deslat'],
+      userDestination['deslng'],
       userLocation['latitude'],
       userLocation['longitude'],
     );

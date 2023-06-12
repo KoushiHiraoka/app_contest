@@ -35,26 +35,37 @@ class MapSampleState extends State<MapSample> {
   String _drivingDistance = '';
   String _drivingDuration = '';
 
-  @override
-  void initState() {
-    super.initState();
+@override
+void initState() {
+  super.initState();
 
-    Future(() async {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        await Geolocator.requestPermission();
-      }
-    });
+  Future(() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      await Geolocator.requestPermission();
+    }
+  });
 
-    positionStream =
-        Geolocator.getPositionStream(locationSettings: locationSettings)
-            .listen((Position? position) {
-      currentPosition = position;
-       if (position != null) {
-    uploadLocation(position, 'currentlocation');//追加
-  }
-    });
-  }
+  initPositionStream();
+}
+
+void initPositionStream() {
+  positionStream =
+      Geolocator.getPositionStream(locationSettings: locationSettings)
+          .listen((Position? position) {
+    currentPosition = position;
+     if (position != null) {
+  uploadLocation(position, 'currentlocation');//追加
+}
+  });
+}
+
+@override
+void dispose() {
+  positionStream.cancel();  // ストリームの購読をキャンセルします。
+  super.dispose();
+}
+
 
 
 
