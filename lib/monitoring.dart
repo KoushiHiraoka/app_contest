@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'distance.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart'; 
 
 
 class Monitoring extends StatefulWidget {
@@ -19,6 +21,7 @@ class MonitoringState extends State<Monitoring> {
   String _walkingDuration = '';
   String _drivingDistance = '';
   String _drivingDuration = '';
+  String _username = '';
 
  
   @override
@@ -36,40 +39,41 @@ class MonitoringState extends State<Monitoring> {
   }
 
 
-  Future<Map<String, dynamic>> getUserLocation(String docid) async {
+  Future<Map<String, dynamic>> getUserLocation() async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
     DocumentSnapshot userDoc = await FirebaseFirestore.instance
-    .collection('user')
-    .doc(docid)
+    .collection('Location')
+    .doc(userId)
     .get();
     Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-    return {
-      'latitude': userData['latitude'],
-      'longitude': userData['longitude'],
-    };
-  }
+    return userData['currentlocation'] as Map<String, dynamic>; 
+   }
 
-  Future<Map<String, dynamic>> getUserDestination(String docid) async {
+  Future<Map<String, dynamic>> getUserDestination() async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
     DocumentSnapshot userDoc = await FirebaseFirestore.instance
-    .collection('user')
-    .doc(docid)
+    .collection('Location')
+    .doc(userId)
     .get();
     Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-    return {
-      'deslat': userData['deslat'],
-      'deslng': userData['deslng'],
-
-    };
-  }
+   return userData['destination'] as Map<String, dynamic>;
+   }
+   
+  Future<String> getUserName() async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+    .collection('users')
+    .doc(userId)
+    .get();
+    Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+    return userData['username'] as String;
+}
     
-
+    
+    
   void _addMarkerFromFirestoreUser() async {
-    Map<String, dynamic> userLocation = await getUserLocation('currentlocation');
-    Map<String, dynamic> userDestination = await getUserDestination('destination');
-
-    print(userDestination['deslat']);
-    print(userDestination['deslng']);
-    print(userLocation['latitude']);
-    print(userLocation['longitude']);
+    Map<String, dynamic> userLocation = await getUserLocation();
+    Map<String, dynamic> userDestination = await getUserDestination();
 
     final data = await getDistanceAndDuration(
       userDestination['deslat'],
@@ -85,58 +89,60 @@ class MonitoringState extends State<Monitoring> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('集合状況の確認')),
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    const BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 30),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '徒歩:',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                    ),
-                    const SizedBox(height: 4),
-                    Text('距離: $_walkingDistance'),
-                    Text('時間: $_walkingDuration'),
-                    const SizedBox(height: 8),
-                    const SizedBox(width: 15,),
-                    const Text(
-                      '車:',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                    ),
-                    const SizedBox(height: 4),
-                    const SizedBox(width: 15,),
-                    Text('距離: $_drivingDistance'),
-                    Text('時間: $_drivingDuration'),
-                  ],
-                ),
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('いまどこ？', style: TextStyle(color: Colors.black)),  // テキストカラーを黒に変更
+      backgroundColor: Colors.white12, 
+    ),
+    body: SingleChildScrollView(  // スクロール可能にするためにSingleChildScrollViewを使用
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              const BoxShadow(
+                color: Colors.black12,
+                blurRadius: 4,
+                offset: Offset(0, 4),
               ),
-            ),
+            ],
           ),
-        ],
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 30),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'ユーザー名: $_username',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black), 
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                '徒歩:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black),  
+              ),
+              const SizedBox(height: 4),
+              Text('距離: $_walkingDistance', style: TextStyle(color: Colors.black)), 
+              Text('時間: $_walkingDuration', style: TextStyle(color: Colors.black)),  
+              const SizedBox(height: 8),
+              const SizedBox(width: 15,),
+              const Text(
+                '車:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black), 
+              ),
+              const SizedBox(height: 4),
+              const SizedBox(width: 15,),
+              Text('距離: $_drivingDistance', style: TextStyle(color: Colors.black)), 
+              Text('時間: $_drivingDuration', style: TextStyle(color: Colors.black)),  
+            ],
+          ),
+        ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

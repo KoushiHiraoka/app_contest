@@ -4,6 +4,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'distance.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 
 class MapSample extends StatefulWidget {
@@ -55,7 +57,7 @@ void initPositionStream() {
           .listen((Position? position) {
     currentPosition = position;
      if (position != null) {
-  uploadLocation(position, 'currentlocation');//追加
+  uploadLocation(position);//追加
 }
   });
 }
@@ -80,7 +82,7 @@ void dispose() {
       tapPosition.longitude,
     );
        if (tapPosition != null) {
-    uploadtapLocation(tapPosition, 'destination');//追加
+    uploadtapLocation(tapPosition);
   }
     setState(() {
       _walkingDistance = data['distanceWalking'] as String;
@@ -99,21 +101,27 @@ void dispose() {
 }
 
 //追加
-void uploadLocation(position, docid) async {
-  CollectionReference users = FirebaseFirestore.instance.collection('user');
+void uploadLocation(position) async {
+  String userId = FirebaseAuth.instance.currentUser!.uid;
+  CollectionReference users = FirebaseFirestore.instance.collection('Location');
 //ユーザーの位置情報を更新する
-  await users.doc(docid).set({
+  await users.doc(userId).set({
+  'destination': {
     'latitude': position.latitude,
     'longitude': position.longitude,
+    },
   }, SetOptions(merge: true));  // 他の情報を消さずに情報を追加
 }//
 
-void uploadtapLocation(tapPosition, docid) async {
-  CollectionReference users = FirebaseFirestore.instance.collection('user');
+void uploadtapLocation(tapPosition) async {
+  String userId = FirebaseAuth.instance.currentUser!.uid;
+  CollectionReference users = FirebaseFirestore.instance.collection('Location');
 //ユーザーの位置情報を更新する
-  await users.doc(docid).set({
+  await users.doc(userId).set({
+   'currentlocation': { 
     'deslat': tapPosition.latitude,
     'deslng': tapPosition.longitude,
+    },
   }, SetOptions(merge: true));  // 他の情報を消さずに情報を追加
 }//
 
