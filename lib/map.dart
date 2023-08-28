@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'distance.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+
 
 class MapSample extends StatefulWidget {
   const MapSample({Key? key}) : super(key: key);
@@ -13,12 +17,13 @@ class MapSample extends StatefulWidget {
 
 class MapSampleState extends State<MapSample> {
   Position? currentPosition;
+
   late GoogleMapController _controller;
   late StreamSubscription<Position> positionStream;
   final Set<Marker> _markers = {};
 
   final CameraPosition _kGooglePlex = const CameraPosition(
-    target: LatLng(33.8391, 132.7655),
+    target: LatLng(33.5781, 130.2596),
     zoom: 10,
   );
 
@@ -32,57 +37,100 @@ class MapSampleState extends State<MapSample> {
   String _drivingDistance = '';
   String _drivingDuration = '';
 
-  @override
-  void initState() {
-    super.initState();
+@override
+void initState() {
+  super.initState();
 
-    Future(() async {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        await Geolocator.requestPermission();
-      }
-    });
+  Future(() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      await Geolocator.requestPermission();
+    }
+  });
 
-    positionStream =
-        Geolocator.getPositionStream(locationSettings: locationSettings)
-            .listen((Position? position) {
-      currentPosition = position;
-    });
-  }
+  initPositionStream();
+}
+
+void initPositionStream() {
+  positionStream =
+      Geolocator.getPositionStream(locationSettings: locationSettings)
+          .listen((Position? position) {
+    currentPosition = position;
+     if (position != null) {
+  uploadLocation(position);//追加
+}
+  });
+}
+
+@override
+void dispose() {
+  positionStream.cancel(); 
+  super.dispose();
+}
+
+
+
+
+
 
   void _addMarker(LatLng tapPosition) async {
-    if (currentPosition != null) {
-      print("=====addMarker=====");
-      print(currentPosition);
-      print(tapPosition);
-      final data = await getDistanceAndDuration(
-        currentPosition!.latitude,
-        currentPosition!.longitude,
-        tapPosition.latitude,
-        tapPosition.longitude,
-      );
-      setState(() {
-        print("=====addMarker setState()=====");
-        print(data);
-        _walkingDistance = data['distanceWalking'] as String;
-        _walkingDuration = data['durationWalking'] as String;
-        _drivingDistance = data['distanceDriving'] as String;
-        _drivingDuration = data['durationDriving'] as String;
-        _markers.add(
-          Marker(
-            markerId: MarkerId(tapPosition.toString()),
-            position: tapPosition,
-          ),
-        );
-      });
-    }
+  if (currentPosition != null) {
+    final data = await getDistanceAndDuration(
+      currentPosition!.latitude,
+      currentPosition!.longitude,
+      tapPosition.latitude,
+      tapPosition.longitude,
+    );
+       if (tapPosition != null) {
+    uploadtapLocation(tapPosition);
   }
+    setState(() {
+      _walkingDistance = data['distanceWalking'] as String;
+      _walkingDuration = data['durationWalking'] as String;
+      _drivingDistance = data['distanceDriving'] as String;
+      _drivingDuration = data['durationDriving'] as String;
+      _markers.clear();  // 既存のマーカーを全て削除
+      _markers.add(
+        Marker(
+          markerId: MarkerId(tapPosition.toString()),
+          position: tapPosition,
+        ),
+      );
+    });
+  }
+}
+
+//追加
+void uploadLocation(position) async {
+  String userId = FirebaseAuth.instance.currentUser!.uid;
+  CollectionReference users = FirebaseFirestore.instance.collection('Location');
+//ユーザーの位置情報を更新する
+  await users.doc(userId).set({
+  'destination': {
+    'latitude': position.latitude,
+    'longitude': position.longitude,
+    },
+  }, SetOptions(merge: true));  // 他の情報を消さずに情報を追加
+}//
+
+void uploadtapLocation(tapPosition) async {
+  String userId = FirebaseAuth.instance.currentUser!.uid;
+  CollectionReference users = FirebaseFirestore.instance.collection('Location');
+//ユーザーの位置情報を更新する
+  await users.doc(userId).set({
+   'currentlocation': { 
+    'deslat': tapPosition.latitude,
+    'deslng': tapPosition.longitude,
+    },
+  }, SetOptions(merge: true));  // 他の情報を消さずに情報を追加
+}//
+
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Distance and Duration')),
+      appBar: AppBar(title: const Text('現在地を確認')),
       body: Stack(
         children: [
           GoogleMap(
@@ -90,7 +138,7 @@ class MapSampleState extends State<MapSample> {
             initialCameraPosition: _kGooglePlex,
             myLocationEnabled: true,
             onMapCreated: (GoogleMapController controller) {
-              _controller = controller;
+             _controller = controller;
             },
             markers: _markers,
             onTap: _addMarker, // 変更：1タップでピンを追加

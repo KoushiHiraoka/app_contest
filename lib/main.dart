@@ -1,10 +1,25 @@
-
 import 'package:app_contest/home.dart';
 import 'package:app_contest/map.dart';
+import 'package:app_contest/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'monitoring.dart';
 
-void main() => runApp(const MyApp());
+// main関数を非同期にします
+void main() async {
+  // Flutterのウィジェットがすべて読み込まれるのを待ちます
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Firebaseを初期化します
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  runApp(const MyApp());
+}
+
 final _router = GoRouter(
   initialLocation: '/',
   routes: [
@@ -16,8 +31,17 @@ final _router = GoRouter(
       path: '/map',
       builder: (context, state) => const MapSample(),
     ),
+    GoRoute(
+      path: '/monitoring',
+      builder: (context, state) => const Monitoring(),
+    ),
+    GoRoute(
+      path: '/sign_in',
+      builder: (context, state) => const SignIn(),
+    ),
   ],
 );
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -29,4 +53,5 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 

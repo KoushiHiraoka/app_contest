@@ -54,6 +54,29 @@
         }
       });
     });
+    // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCZqph0a84xr03zjkiqTE_u8atElhjravU",
+  authDomain: "humanophi.firebaseapp.com",
+  projectId: "humanophi",
+  storageBucket: "humanophi.appspot.com",
+  messagingSenderId: "53379008663",
+  appId: "1:53379008663:web:f3e8570dd2bd651e33c1d2",
+  measurementId: "G-01RJDLXK50"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+
   </script>
 </body>
 </html>
